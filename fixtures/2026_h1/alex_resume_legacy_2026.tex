@@ -1,0 +1,86 @@
+% Synthetic fixture -- an OLDER corpus generation, in a different template.
+%
+% This one matters for parser coverage: it uses a sans-serif family (Computer
+% Modern Sans, bold = CMSSBX10) instead of a serif one, sets project titles in
+% REGULAR weight marked by a trailing colon, and right-aligns dates onto their
+% own line. A font-weight-only heuristic fails here, which is why parse_pdf also
+% recognises colon-terminated titles.
+%
+% It also carries a STALE FIGURE on purpose (85% vs the master's 75%) so the
+% numeric-conflict scan has something to find.
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=1.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{cmbright}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+\titleformat{\section}{\large\bfseries}{}{0em}{}[\vspace{-0.5em}\rule{\textwidth}{0.5pt}]
+\titlespacing*{\section}{0pt}{7pt}{4pt}
+
+\newcommand{\entry}[2]{{\bfseries #1}\hfill {#2}\\[-0.3em]}
+\newcommand{\proj}[1]{\vspace{1pt}#1:\\[-0.4em]}
+\setlist[itemize]{leftmargin=1.1em,itemsep=1pt,topsep=1.5pt,parsep=0pt,label=\textbullet}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries ALEX MORGAN RIVERA}\\[2pt]
+Springfield, Freedonia --- alex@example.invalid --- linkedin.com/in/example
+\end{center}
+\vspace{-4pt}
+
+\section{Summary}
+Data Scientist with experience designing, building and deploying machine learning systems in logistics and retail, with a focus on scalable architectures, reliability, and measurable business impact.
+
+\section{Work Experience}
+\entry{Senior Data Scientist - Northwind Analytics, Springfield}{Mar 2023 - Present}
+
+\proj{Adaptive simulation using Reinforcement Learning}
+\begin{itemize}
+\item Achieved 140\% increase in engagement metrics by combining PPO based reinforcement learning with language-model simulation.
+\item Created reward functions prioritizing signal-revealing actions, boosting high-value interaction capture 3x.
+\end{itemize}
+
+\proj{Sequential Demand Ranking Model for Inventory Allocation}
+\begin{itemize}
+\item Built a CNN + BiLSTM time-series ranking model to prioritize allocation reviews, achieving 85\%+ recall on out-of-time data.
+\item Designed end-to-end scoring pipeline processing 4M+ transaction events to generate risk scores and actionable prioritization.
+\end{itemize}
+
+\proj{Prompt Injection detection for Generative models}
+\begin{itemize}
+\item Designed a lightweight sequential anomaly detection guardrail improving precision by 12\% against adversarial attacks.
+\end{itemize}
+
+\entry{Data Scientist - Contoso Data Labs, Riverton}{Jul 2019 - Feb 2023}
+
+\proj{Account Scoring Solution for Retail Partners}
+\begin{itemize}
+\item Built Spark pipelines scoring 200M+ accounts monthly for 40+ partners, forecasting churn and credit risk at 3 and 6 month horizons.
+\item Live monthly scoring generating \$4M+ annual revenue.
+\end{itemize}
+
+\proj{Merchant Leakage Detection Solution}
+\begin{itemize}
+\item Engineered an end to end Spark pipeline over 2B+ monthly transactions, detecting merchants circumventing declined authorizations with 4x baseline rates.
+\end{itemize}
+
+\section{Education}
+\entry{Freedonia Institute of Technology}{Jul 2015 - May 2019}
+B.Sc., Mathematics and Computing
+
+\section{Publications \& Achievements}
+\begin{itemize}
+\item 6 patents (fictional) in logistics, agentic systems, and fraud prevention.
+\item Example Sprint 2025 finalist and Example Conference 2025 speaker.
+\end{itemize}
+
+\section{Technical Skills}
+Python, SQL, Spark, PyTorch, TensorFlow, Docker, Kubernetes, FastAPI, reinforcement learning, anomaly detection, causal inference.
+
+\end{document}

@@ -1,0 +1,107 @@
+% Synthetic fixture -- a fictional person, used to exercise the parsers.
+% This is the "master" document: the union of every record.
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=1.2cm,top=1.0cm,bottom=0.9cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\linespread{1.0}
+
+\titleformat{\section}{\large\bfseries\scshape}{}{0em}{}[\vspace{-0.6em}\rule{\textwidth}{0.6pt}]
+\titlespacing*{\section}{0pt}{7pt}{4pt}
+
+\newcommand{\entry}[2]{\textbf{#1} \hfill \textit{#2}\\[-0.35em]}
+\newcommand{\proj}[1]{\vspace{0.5pt}\textbf{#1}\\[-0.4em]}
+\setlist[itemize]{leftmargin=1.1em,itemsep=1pt,topsep=1.5pt,parsep=0pt,label=\textbullet}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries ALEX MORGAN RIVERA}\\[2pt]
+Springfield, Freedonia \ $|$ \ alex@example.invalid \ $|$ \ linkedin.com/in/example \ $|$ \ +00 000 000 0000 \ $|$ \ github.com/example
+\end{center}
+\vspace{-6pt}
+
+\section{Summary}
+Data Scientist with several years building and operating machine learning systems in logistics and retail. Hands-on across the lifecycle: forecasting pipelines over large event streams, experimentation and causal measurement, and LLM tooling with tracing and evaluation harnesses.
+
+\section{Work Experience}
+\entry{Senior Data Scientist — Northwind Analytics, Springfield}{Mar 2023 -- Present}
+
+\proj{Agentic Impact Measurement for Feature Rollouts}
+\begin{itemize}
+\item Building a multi-agent system quantifying the causal effect of feature rollouts across 50M+ user sessions
+\item Architected a 3-stage pipeline (planning, retrieval, synthesis) with tool calling, retries, and state management
+\item Causal isolation via difference-in-differences and synthetic control; output validation and Streamlyzer tracing throughout
+\end{itemize}
+
+\proj{Anomaly Detection for Warehouse Telemetry}
+\begin{itemize}
+\item Led a team of 4 building a streaming anomaly-detection service; confirmed 25\% hit rate on faults missed by threshold rules
+\item Packaged for deployment: near-real-time scoring, plug-and-play Docker images with Kubernetes; 3 external pilots
+\end{itemize}
+
+\proj{Sequential Demand Ranking for Inventory Allocation — live in production}
+\begin{itemize}
+\item CNN+BiLSTM ranking model cut manual review volume to 1/8th while retaining 75\% recall on out-of-time data
+\item Own the production lifecycle: scheduled scoring over 4M+ events, experiment tracking, 9+ months of live drift and performance monitoring
+\end{itemize}
+
+\proj{LLM Guardrails — Prompt Injection Detection}
+\begin{itemize}
+\item Designed a lightweight sequential anomaly-detection guardrail: +12\% precision against adversarial attacks, unblocking internal LLM adoption
+\item Built leave-one-out evaluation datasets; a low-rank adapter lifted held-out attack-class detection from 28\% to 49\%
+\end{itemize}
+
+\proj{Adaptive Simulation using Reinforcement Learning}
+\begin{itemize}
+\item Combined PPO-based RL with language-model simulation, raising engagement 140\% and high-value interaction capture 3$\times$
+\item Designed embedding-based state representations from unstructured command streams and reward functions prioritizing signal-revealing actions
+\end{itemize}
+
+\entry{Data Scientist — Contoso Data Labs, Riverton}{Jul 2019 -- Feb 2023}
+\proj{Account Scoring for Retail Partners}
+\begin{itemize}
+\item Built Spark pipelines scoring 200M+ accounts monthly for 40+ partners across 20+ countries, forecasting churn and credit risk at 3- and 6-month horizons
+\item Live monthly scoring generating \$4M+ annual revenue, materially improving partner risk mitigation
+\end{itemize}
+
+\proj{Merchant Leakage Detection}
+\begin{itemize}
+\item Engineered an end-to-end Spark pipeline (ingestion to rule-based scoring) over 2B+ monthly transactions, detecting merchants circumventing declined authorizations with 4$\times$ baseline rates
+\end{itemize}
+
+\section{Selected Engineering Projects (Personal)}
+\proj{Sandboxed Personal Assistant — Python, FastAPI, Ollama, Streamlyzer}
+\begin{itemize}
+\item Self-hosted assistant with a sandboxed FastAPI action plane: token auth, 3-tier risk permissions, JSONL audit logging
+\item Cost-aware multi-provider model routing (cloud $\rightarrow$ local fallback); Streamlyzer tracing; 32 integration tests; cut per-turn token cost 14\%
+\end{itemize}
+
+\proj{Habit-Aware Focus Assistant — Python, FastAPI, SQLAlchemy, JS}
+\begin{itemize}
+\item Full-stack behavioral system ($\sim$5.2k LOC): FastAPI backend, dual-target browser extension, and a native tracker sharing one data model; real-time distraction detection pushing notifications within seconds
+\item Language-model spaced-repetition loop (content extraction, tiered question generation, free-text grading) with Streamlyzer observability; calendar integrations; test suite
+\end{itemize}
+
+\section{Education}
+\entry{Freedonia Institute of Technology — B.Sc., Mathematics and Computing}{Jul 2015 -- May 2019}
+
+\section{Publications \& Achievements}
+\begin{itemize}
+\item \textbf{6 patents} (fictional) in logistics, agentic systems, and fraud prevention
+\item \textbf{Example Sprint 2025 finalist:} distilled a 7B model to 350M params ($\sim$92\% accuracy retained, prototype benchmark); on-device quantization for offline detection
+\item \textbf{Example Conference 2025 speaker} on agentic systems; co-authored an industry whitepaper on ML for service security
+\end{itemize}
+
+\section{Technical Skills}
+\textbf{Agentic \& LLM Engineering:} multi-agent orchestration, tool/function calling, retrieval, LLM guardrails, prompt-injection defense, LLM evaluation, knowledge distillation, model routing, structured outputs\\
+\textbf{ML:} PyTorch, TensorFlow, sequence models (CNN/BiLSTM), RL (PPO), anomaly detection, causal inference (DiD, synthetic control), A/B testing\\
+\textbf{Data \& Infra:} Python, SQL (warehouse, Postgres), Spark, Docker, Kubernetes, quantization, FastAPI, experiment tracking, drift monitoring, CI/CD
+
+\end{document}
