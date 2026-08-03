@@ -108,6 +108,12 @@ several generic ones. Bullet *content* is far more distinctive, so clustering sc
 IDF-weighted bullet overlap at 0.65 against title similarity at 0.35, seeded from the
 master document.
 
+Bullets with no project heading are handled too: a variant may compress an older role
+by listing its bullets directly under the employer. Dropping those would silently lose
+material from the bank, so each is scored against every record's single best-matching
+bullet — comparing one bullet against a record's whole token union dilutes the signal —
+and placed on content alone.
+
 Emits a human-review report before anything is written to the bank, flagging
 low-margin assignments and unmatched groups.
 
@@ -137,6 +143,7 @@ Outputs land in `data/harvest/`:
 | `CVAGENT_CORPUS` | `./fixtures` | Where the CV corpus lives |
 | `CVAGENT_MASTER` | `master` | Variant name of the document containing every record |
 | `CVAGENT_NAME_PREFIX` | `^[a-z]+_(resume\|master\|cv)_?` | Filename prefix stripped from variant labels |
+| `CVAGENT_EXCLUDE` | *(none)* | Comma-separated globs to skip, e.g. a retired CV generation |
 
 Optional `config/record_ids.json` maps project titles to stable record ids
 (`{"<project title>": "<id>"}`); unmapped titles get a slug. That file is gitignored —

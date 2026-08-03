@@ -85,17 +85,32 @@ def load() -> dict:
     return json.loads((HARVEST / "inventory.json").read_text(encoding="utf-8"))
 
 
+GROUPED_SECTIONS = {"work", "personal"}
+
+
 def project_groups(data: dict) -> list[dict]:
-    """One group per (variant, project) pair, carrying its bullets."""
+    """One group per (variant, project) pair, carrying its bullets.
+
+    Some variants compress an older role by listing its bullets directly under
+    the employer with no project heading. Those are still record content, so
+    each becomes its own untitled single-bullet group and is placed by content
+    alone -- dropping them would silently lose material from the bank.
+    """
     groups: dict[tuple[str, str], dict] = {}
     for doc in data["documents"]:
         for item in doc["items"]:
-            if not item["project"]:
-                continue
-            key = (doc["variant"], item["project"])
+            if item["project"]:
+                key = (doc["variant"], item["project"])
+                title = item["project"]
+            elif item["section"] in GROUPED_SECTIONS:
+                key = (doc["variant"], f"\x00{norm_key(item['text'])[:60]}")
+                title = ""
+            else:
+                continue                      # achievements, summary: not record content
             g = groups.setdefault(key, {
-                "variant": doc["variant"], "source": doc["source"], "title": item["project"],
-                "section": item["section"], "employer": item["employer"], "bullets": [],
+                "variant": doc["variant"], "source": doc["source"], "title": title,
+                "section": item["section"], "employer": item["employer"],
+                "bullets": [], "untitled": not item["project"],
             })
             g["bullets"].append(item["text"])
     return list(groups.values())
@@ -115,6 +130,7 @@ def cluster(data: dict) -> dict:
             "employer": g["employer"],
             "title_tokens": tokens(g["title"]),
             "bullet_tokens": set().union(*(tokens(b) for b in g["bullets"])) if g["bullets"] else set(),
+            "bullet_sets": [tokens(b) for b in g["bullets"]],
         }
 
     if not seeds:
@@ -136,11 +152,20 @@ def cluster(data: dict) -> dict:
 
     for g in groups:
         gt, gb = tokens(g["title"]), (set().union(*(tokens(b) for b in g["bullets"])) if g["bullets"] else set())
-        scored = [
-            (TITLE_WEIGHT * weighted_overlap(gt, s["title_tokens"], idf)
-             + BULLET_WEIGHT * weighted_overlap(gb, s["bullet_tokens"], idf), rid)
-            for rid, s in seeds.items()
-        ]
+        if g.get("untitled"):
+            # No heading to lean on, and comparing one bullet against a seed's
+            # whole token union dilutes the signal. Score against the seed's
+            # single best-matching bullet instead.
+            scored = [
+                (max((weighted_overlap(gb, bs, idf) for bs in s["bullet_sets"]), default=0.0), rid)
+                for rid, s in seeds.items()
+            ]
+        else:
+            scored = [
+                (TITLE_WEIGHT * weighted_overlap(gt, s["title_tokens"], idf)
+                 + BULLET_WEIGHT * weighted_overlap(gb, s["bullet_tokens"], idf), rid)
+                for rid, s in seeds.items()
+            ]
         score, rid = max(scored)
         runner_up = sorted((s for s, _ in scored), reverse=True)[1] if len(scored) > 1 else 0.0
 

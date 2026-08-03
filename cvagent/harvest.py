@@ -45,6 +45,25 @@ def corpus_dir() -> Path:
 
 RESUMES = corpus_dir()
 
+
+def excluded_globs() -> list[str]:
+    """Corpus paths to skip, e.g. retired CV generations.
+
+    Comma-separated globs in CVAGENT_EXCLUDE, matched against the path relative
+    to the corpus root. Retiring a generation this way keeps the files on disk
+    and the decision visible, rather than depending on a silent deletion.
+    """
+    raw = os.environ.get("CVAGENT_EXCLUDE", "")
+    return [g.strip() for g in raw.split(",") if g.strip()]
+
+
+def is_excluded(path: Path, corpus: Path) -> bool:
+    try:
+        rel = path.relative_to(corpus)
+    except ValueError:
+        return False
+    return any(rel.match(g) or any(p.match(g) for p in rel.parents) for g in excluded_globs())
+
 SECTION_PATTERNS = [
     (re.compile(r"^summary$", re.I), "summary"),
     # Section names are themselves angle-dependent -- a research-angle CV renames
@@ -371,14 +390,24 @@ def variant_name(path: Path) -> str:
 
 def harvest() -> dict:
     corpus = corpus_dir()
-    tex_files = sorted(ROOT.glob("*.tex")) + sorted(corpus.rglob("*.tex"))
-    pdf_files = sorted(corpus.rglob("*.pdf"))
+    tex_files = sorted(ROOT.glob("*.tex")) + [
+        p for p in sorted(corpus.rglob("*.tex")) if not is_excluded(p, corpus)
+    ]
+    pdf_files = [p for p in sorted(corpus.rglob("*.pdf")) if not is_excluded(p, corpus)]
     dehyph = Dehyphenator(build_vocabulary(tex_files))
 
     docs = [parse_tex(p, variant_name(p)) for p in tex_files]
     have_tex = {d.variant for d in docs}
+    # A source outside the generation folders (a corpus-root master) carries no
+    # generation tag, so it must also claim its render, which does: `master` owns
+    # `master@h2`. Tagged sources match exactly, so mle@h1 and mle@h2 stay distinct.
+    untagged = {v for v in have_tex if "@" not in v}
+
+    def superseded(variant: str) -> bool:
+        return variant in have_tex or variant.split("@", 1)[0] in untagged
+
     docs += [parse_pdf(p, variant_name(p), dehyph) for p in pdf_files
-             if variant_name(p) not in have_tex]
+             if not superseded(variant_name(p))]
 
     inventory: dict[str, dict] = {}
     for d in docs:
