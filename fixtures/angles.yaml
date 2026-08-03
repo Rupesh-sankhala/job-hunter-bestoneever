@@ -1,0 +1,37 @@
+# Angle mapping for the synthetic fixture corpus.
+#
+# This is the one judgement call the bank build depends on, so it lives in
+# config rather than in code. Point CVAGENT_ANGLES at your own file, or place
+# one at config/angles.yaml (gitignored), to override.
+#
+# `domain` is a SECOND dimension, not part of the angle: two variants can share
+# an angle and differ only in domain framing. Runtime resolution falls back
+# (angle, domain) -> (angle, null) -> neutral.
+
+variants:
+  master:
+    angle: neutral
+    domain: null
+    note: "Union of all records; universal fallback phrasing."
+  product@h2:
+    angle: decision_science
+    domain: null
+    note: "renames every project and section; exercises clustering"
+  legacy@h1:
+    angle: production_ml
+    domain: null
+    note: "older generation, different template family"
+
+# Angles with no authored variant yet -- reported as gaps, never invented.
+unauthored:
+  - agent_llm
+  - client_delivery
+  - research
+  - builder
+
+# `since` drives the derived {live_duration} slot, so a hardcoded duration in a
+# bullet cannot silently go stale.
+record_status:
+  sequential_demand_ranking:
+    state: live_in_production
+    since: 2026-01

@@ -69,7 +69,10 @@ SECTION_PATTERNS = [
     # Section names are themselves angle-dependent -- a research-angle CV renames
     # these to "RESEARCH & WORK EXPERIENCE" / "PATENTS, PUBLICATIONS & RECOGNITION".
     (re.compile(r"^(research\s*(&|and)\s*)?work\s+experience$", re.I), "work"),
-    (re.compile(r"^(selected\s+)?.*projects?\s*\(personal\)$", re.I), "personal"),
+    # Observed forms: "Personal Projects", "Selected Engineering Project(s) (Personal)",
+    # "Selected Product Project (Personal)".
+    (re.compile(r"^(selected\s+)?(personal\s+)?[\w\s&-]*projects?(\s*\(personal\))?$", re.I),
+     "personal"),
     (re.compile(r"^education$", re.I), "education"),
     (re.compile(r"^(patents,?\s*)?publications?\s*(&|and)\s*(achievements?|recognition)$", re.I),
      "achievements"),
@@ -189,11 +192,21 @@ TEX_STRIP = [
     # Keep the true glyphs so the .tex and .pdf paths agree; the renderer maps back.
     (re.compile(r"\$\\times\$"), "×"), (re.compile(r"\$\\rightarrow\$"), "→"),
     (re.compile(r"\$\\sim\$"), "~"), (re.compile(r"\$\|\$"), "|"),
+    # Explicit line break, optionally with spacing: \\ or \\[2pt]
+    (re.compile(r"\\\\(\[[^\]]*\])?"), "\n"),
     (re.compile(r"\\&"), "&"), (re.compile(r"\\%"), "%"), (re.compile(r"\\\$"), "$"),
     (re.compile(r"\\#"), "#"), (re.compile(r"\\_"), "_"), (re.compile(r"\\ "), " "),
     (re.compile(r"\\[a-zA-Z]+\*?(\[[^\]]*\])?"), " "),
     (re.compile(r"[{}~]"), ""), (re.compile(r"[ \t]+"), " "),
 ]
+
+
+# Layout/structure commands carrying no CV content.
+STRUCTURAL_RE = re.compile(
+    r"^\s*\\(vspace|hspace|begin|end|rule|hrule|noindent|par|smallskip|medskip"
+    r"|bigskip|clearpage|newpage|documentclass|usepackage|newcommand|renewcommand"
+    r"|setlist|titleformat|titlespacing|pagestyle|setlength|linespread)\b"
+)
 
 
 def strip_tex(s: str) -> str:
@@ -231,7 +244,10 @@ def parse_tex(path: Path, variant: str) -> Document:
                 order += 1
                 doc.items.append(Item(path.name, variant, section, employer, project, text, order))
         elif section in {"summary", "skills"}:
-            if (text := clean_text(strip_tex(line))) and not line.lstrip().startswith("\\"):
+            # Skills lines are authored as "\textbf{Category:} a, b, c", so a
+            # blanket "skip lines starting with a backslash" drops them all.
+            # Skip only structural/spacing commands and keep the content.
+            if (text := clean_text(strip_tex(line))) and not STRUCTURAL_RE.match(line):
                 doc.blocks.setdefault(section, []).append(text)
 
     for key in ("summary", "skills"):

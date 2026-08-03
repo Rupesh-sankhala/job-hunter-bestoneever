@@ -98,6 +98,27 @@ vocabulary built from the `.tex` sources); multiple template families; right-ali
 dates emitted on their own line; and templates that set project titles in regular
 weight with a trailing colon.
 
+### `cvagent/bank.py`
+
+Builds the bank from what has already been authored across the corpus. It does **not**
+invent phrasing: a record/angle cell with no harvested bullet stays empty and is
+reported for authoring. Every bullet in the bank was written by hand in some CV.
+
+Records are keyed by `(angle, domain)`. **Domain is a second dimension, not part of the
+angle** — two variants can share an angle and differ only in domain framing (a
+production-ML CV aimed at finance-risk roles versus a generic one). Collapsing domain
+into angle would make one silently overwrite the other. Resolution falls back
+`(angle, domain)` → `(angle, null)` → `neutral`, and `neutral` always exists, so no
+record is ever unrenderable.
+
+Each record carries a `facts` allowlist — every figure its bullets state — which Stage 3
+checks rendered numbers against. Fractions are extracted before general numerics, or
+`1/8th` gets shredded into `1` and `8`, losing exactly the kind of ratio the allowlist
+exists to protect.
+
+Outputs `bank/bank.yaml` and a coverage matrix showing which record × angle cells are
+filled and which need authoring.
+
 ### `cvagent/cluster.py`
 
 Groups harvested bullets into canonical records.
@@ -136,6 +157,11 @@ Outputs land in `data/harvest/`:
 - `records_review.md` — human-review report, grouped by canonical record
 - `records_draft.json` — machine-readable clustering
 
+and in `bank/`:
+
+- `bank.yaml` — the bank itself
+- `coverage_review.md` — record × angle coverage matrix, and the gaps to author
+
 ### Configuration
 
 | Variable | Default | Purpose |
@@ -144,6 +170,7 @@ Outputs land in `data/harvest/`:
 | `CVAGENT_MASTER` | `master` | Variant name of the document containing every record |
 | `CVAGENT_NAME_PREFIX` | `^[a-z]+_(resume\|master\|cv)_?` | Filename prefix stripped from variant labels |
 | `CVAGENT_EXCLUDE` | *(none)* | Comma-separated globs to skip, e.g. a retired CV generation |
+| `CVAGENT_ANGLES` | `config/angles.yaml`, else `<corpus>/angles.yaml` | Variant → angle mapping |
 
 Optional `config/record_ids.json` maps project titles to stable record ids
 (`{"<project title>": "<id>"}`); unmapped titles get a slug. That file is gitignored —
@@ -184,7 +211,7 @@ PDF-only variant's correctness rests on.
 
 - [x] Corpus harvest (LaTeX + PDF, font-aware)
 - [x] Bullet clustering into canonical records
-- [ ] Bank schema with per-angle bullet variants
+- [x] Bank v0 — per-(angle, domain) bullet variants, facts allowlist, coverage matrix
 - [ ] JD parser → typed requirements
 - [ ] Coverage engine + apply/don't-apply decision
 - [ ] LaTeX renderer with page-budget degradation ladder
