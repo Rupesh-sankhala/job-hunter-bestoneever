@@ -9,9 +9,13 @@ of pre-authored, human-approved bullets, so verification collapses from "is this
 generated sentence faithful?" to "is this exact string in the bank?" — a dictionary
 lookup. The safety guarantee lives at authoring time, not at runtime.
 
-**Status:** early. The harvest and clustering stages are implemented and tested; the
-bank, JD parser, coverage engine, and renderer are specified but not yet built. See
-[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+**Status:** early. Harvest, clustering, and the bank are implemented and tested; the JD
+parser, coverage engine, and renderer are specified but not yet built.
+
+- **New to the project?** Start with [`docs/CONCEPTS.md`](docs/CONCEPTS.md) — every term
+  explained from first principles.
+- **Want the design rationale?** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — what was
+  tried, what failed, and why the current shape won.
 
 ---
 
